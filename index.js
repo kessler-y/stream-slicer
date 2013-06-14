@@ -45,8 +45,8 @@ StreamSlicer.prototype._append = function ( str ) {
 	this._currentLength += str.length;
 };
 
-StreamSlicer.prototype._separatorFlush = function () {
-	if (this.replaceWith) {
+StreamSlicer.prototype._separatorFlush = function (transformFlush) {
+	if (this.replaceWith && !transformFlush) {
 		this._buffer.push(this.replaceWith);
 		this._currentLength += this.replaceWith.length;
 	}
@@ -57,11 +57,11 @@ StreamSlicer.prototype._separatorFlush = function () {
 	this._currentLength = 0;
 
 	this.push(data);
-	this.emit('separator', data);
+	this.emit('slice', data);
 };
 
 StreamSlicer.prototype._flush = function (callback) {
-	this._separatorFlush();
+	this._separatorFlush(true);
 
 	if (callback)
 		callback();
