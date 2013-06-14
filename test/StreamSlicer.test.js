@@ -14,19 +14,8 @@ describe('StreamSlicer', function () {
 		
 		var stream = new StreamSlicer({ sliceBy: '|', replaceWith: '-' });
 
-		function readMore() {
-			var result = stream.read();
-			
-			console.log(result);
+		incoming.pipe(stream).pipe(process.stdout);
 
-			if (!result) {
-				stream.once('readable', readMore);
-			}
-		}
-
-		incoming.pipe(stream);
-
-		readMore()
 	});
 
 });
