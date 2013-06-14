@@ -3,6 +3,9 @@ var $u = require('util');
 
 $u.inherits(StreamSlicer, Transform);
 function StreamSlicer(options) {
+	if (!(this instanceof StreamSlicer))
+    	return new StreamSlicer(options);
+
 	Transform.call(this, options);
 	this._buffer = [];
 	this._currentLength = 0;

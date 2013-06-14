@@ -1,15 +1,25 @@
 var assert = require('assert');
 var StreamSlicer = require('../index');
 var fs = require('fs');
+var path = require('path');
 
-var testdata = fs.readFileSync('./testdata', 'utf8');
+
+var dir = process.cwd();
+var testdataFilename;
+
+if (dir.substr(-5) === 'test/')
+	testdataFilename = './testdata';
+else
+	testdataFilename = path.join(dir, 'test', 'testdata');
+
+testdata = fs.readFileSync(testdataFilename, 'utf8');
 
 describe('StreamSlicer', function () {
 
 	it('will slice a stream by a separator', function (done) {
 		
 		var stream = new StreamSlicer({ sliceBy: '|' });		
-		var incoming = fs.createReadStream('./testdata');
+		var incoming = fs.createReadStream(testdataFilename);
 
 		var slicerOutput = '';
 
@@ -21,29 +31,26 @@ describe('StreamSlicer', function () {
 			done();
 		});	
 
-		incoming.pipe(stream);
+		function readMore() {
+			var result = stream.read();
 
-		incoming.on('end', function () {
-
-			function readMore() {
-				var result = stream.read();
-
-				if (result === false) {
-					stream.on('readable', readMore)
-				} else {
-					slicerOutput += result;
-				}
+			if (result === null) {				
+				stream.once('readable', readMore)
+			} else {				
+				slicerOutput += result;				
+				readMore();
 			}
+		}
 
-			readMore();
+		readMore();
 
-		});
+		incoming.pipe(stream);
 	});
 
 	it('will slice a stream by a separator and replace it with another', function (done) {
 		
 		var stream = new StreamSlicer({ sliceBy: '|', replaceWith: '-' });		
-		var incoming = fs.createReadStream('./testdata');
+		var incoming = fs.createReadStream(testdataFilename);
 
 		var slicerOutput = '';
 
@@ -55,29 +62,27 @@ describe('StreamSlicer', function () {
 			done();
 		});	
 
-		incoming.pipe(stream);
 
-		incoming.on('end', function () {
-
-			function readMore() {
-				var result = stream.read();
-
-				if (result === false) {
-					stream.on('readable', readMore)
-				} else {
-					slicerOutput += result;
-				}
+		function readMore() {
+			var result = stream.read();
+			
+			if (result === null) {
+				stream.once('readable', readMore)
+			} else {
+				slicerOutput += result;				
+				readMore();
 			}
+		}
 
-			readMore();
+		readMore();
 
-		});
+		incoming.pipe(stream);
 	});
 
 	it('will emit an event for each slice it does', function (done) {
 		
 		var stream = new StreamSlicer({ sliceBy: '|' });		
-		var incoming = fs.createReadStream('./testdata');
+		var incoming = fs.createReadStream(testdataFilename);
 
 		var slicerOutput = [];
 
