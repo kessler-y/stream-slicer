@@ -1,17 +1,24 @@
 var assert = require('assert');
-var StreamSlicer = require('../lib/StreamSlicer');
+var StreamSlicer = require('../index');
 var fs = require('fs');
 
-var incoming = fs.createReadStream('./testdata');
+var testdata = fs.readFileSync('./testdata', 'utf8');
 
 describe('StreamSlicer', function () {
 
-	it('will slice a stream by a separator and replace with a new one', function () {
+	it('will slice a stream by a separator', function (done) {
 		
-		var stream = new StreamSlicer({ sliceBy: '|', replaceWith: '\n' });
+		var stream = new StreamSlicer({ sliceBy: '|' });		
+		var incoming = fs.createReadStream('./testdata');
+
+		var slicerOutput = '';
 
 		stream.on('end', function () {
-			console.log('end')
+			
+			var expected = testdata.split('|').join('');
+
+			assert.strictEqual(expected, slicerOutput);
+			done();
 		});	
 
 		incoming.pipe(stream);
@@ -20,11 +27,11 @@ describe('StreamSlicer', function () {
 
 			function readMore() {
 				var result = stream.read();
-				
-				console.log(result)
 
-				if (!result) {
+				if (result === false) {
 					stream.on('readable', readMore)
+				} else {
+					slicerOutput += result;
 				}
 			}
 
@@ -32,4 +39,5 @@ describe('StreamSlicer', function () {
 
 		});
 	});
+
 });
