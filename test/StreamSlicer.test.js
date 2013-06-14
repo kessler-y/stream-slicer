@@ -10,7 +10,26 @@ describe('StreamSlicer', function () {
 		
 		var stream = new StreamSlicer({ sliceBy: '|', replaceWith: '\n' });
 
-		incoming.pipe(stream).pipe(process.stdout);
-	});
+		stream.on('end', function () {
+			console.log('end')
+		});	
 
+		incoming.pipe(stream);
+
+		incoming.on('end', function () {
+
+			function readMore() {
+				var result = stream.read();
+				
+				console.log(result)
+
+				if (!result) {
+					stream.on('readable', readMore)
+				}
+			}
+
+			readMore();
+
+		});
+	});
 });
