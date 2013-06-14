@@ -4,18 +4,13 @@ var fs = require('fs');
 
 var incoming = fs.createReadStream('./testdata');
 
-//console.log(incoming.toString());
-
 describe('StreamSlicer', function () {
 
-	var stream = new StreamSlicer({ sliceBy: '|', newSlicer: '-' });
-
-	it('will slice a stream by a separator', function () {
+	it('will slice a stream by a separator and replace with a new one', function () {
 		
-		var stream = new StreamSlicer({ sliceBy: '|', replaceWith: '-' });
+		var stream = new StreamSlicer({ sliceBy: '|', replaceWith: '\n' });
 
 		incoming.pipe(stream).pipe(process.stdout);
-
 	});
 
 });
