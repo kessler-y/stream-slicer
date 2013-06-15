@@ -1,6 +1,6 @@
 {
   "name": "stream-slicer",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Slice another stream via a transform stream",
   "main": "index.js",
   "scripts": {

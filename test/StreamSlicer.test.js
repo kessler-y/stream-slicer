@@ -14,6 +14,21 @@ else
 
 testdata = fs.readFileSync(testdataFilename, 'utf8');
 
+function createRead(stream, output) {
+
+	return function read () {
+
+		var result = stream.read();
+		
+		if (result === null) {
+			stream.once('readable', read)
+		} else {
+			output.push(result);				
+			read();
+		}	
+	}
+}
+
 describe('StreamSlicer', function () {
 
 	it('will slice a stream by a separator', function (done) {
@@ -21,28 +36,19 @@ describe('StreamSlicer', function () {
 		var stream = new StreamSlicer({ sliceBy: '|' });		
 		var incoming = fs.createReadStream(testdataFilename);
 
-		var slicerOutput = '';
+		var slicerOutput = [];
 
 		stream.on('end', function () {
 			
 			var expected = testdata.split('|').join('');
 
-			assert.strictEqual(expected, slicerOutput);
+			assert.strictEqual(expected, slicerOutput.join(''));
 			done();
 		});	
 
-		function readMore() {
-			var result = stream.read();
+		var read = createRead(stream, slicerOutput);
 
-			if (result === null) {				
-				stream.once('readable', readMore)
-			} else {				
-				slicerOutput += result;				
-				readMore();
-			}
-		}
-
-		readMore();
+		read();
 
 		incoming.pipe(stream);
 	});
@@ -52,29 +58,40 @@ describe('StreamSlicer', function () {
 		var stream = new StreamSlicer({ sliceBy: '|', replaceWith: '-' });		
 		var incoming = fs.createReadStream(testdataFilename);
 
-		var slicerOutput = '';
+		var slicerOutput = [];
 
 		stream.on('end', function () {
 			
 			var expected = testdata.split('|').join('-');
 
-			assert.strictEqual(expected, slicerOutput);
+			assert.strictEqual(expected, slicerOutput.join(''));
 			done();
 		});	
 
+		var read = createRead(stream, slicerOutput);
 
-		function readMore() {
-			var result = stream.read();
+		read();
+
+		incoming.pipe(stream);
+	});
+
+	it('can handle various lengths of separators', function (done) {
+		
+		var stream = new StreamSlicer({ sliceBy: '||', replaceWith: '---' });		
+		var incoming = fs.createReadStream(testdataFilename);
+
+		var slicerOutput = [];
+
+		stream.on('end', function () {
 			
-			if (result === null) {
-				stream.once('readable', readMore)
-			} else {
-				slicerOutput += result;				
-				readMore();
-			}
-		}
+			var expected = testdata.split('||').join('---');			
+			assert.strictEqual(expected, slicerOutput.join(''));
+			done();
+		});	
 
-		readMore();
+		var read = createRead(stream, slicerOutput);
+
+		read();
 
 		incoming.pipe(stream);
 	});

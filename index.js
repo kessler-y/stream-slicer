@@ -32,7 +32,7 @@ StreamSlicer.prototype._transform = function(chunk, encoding, callback) {
 		this._append( miniChunk );
 		this._separatorFlush();
 
-		start = index + 1;
+		start = index + this._sliceBy.length;
 	}
 
 	var trailing = chunk.substring(start);
