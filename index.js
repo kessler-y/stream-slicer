@@ -44,8 +44,9 @@ StreamSlicer.prototype._transform = function(chunk, encoding, callback) {
 };
 
 StreamSlicer.prototype._append = function ( str ) {
-	this._buffer.push(new Buffer(str));
-	this._currentLength += str.length;
+	var chunk = new Buffer(str);
+	this._buffer.push(chunk);
+	this._currentLength += chunk.length;
 };
 
 StreamSlicer.prototype._separatorFlush = function (transformFlush) {
