@@ -8,7 +8,7 @@ function StreamSlicer(options) {
 
 	Transform.call(this, options);
 	this._buffer = [];
-	//this._currentLength = 0;
+	this._currentLength = 0;
 
 	if (options && options.sliceBy)
 		this._sliceBy = options.sliceBy;
@@ -46,19 +46,19 @@ StreamSlicer.prototype._transform = function(chunk, encoding, callback) {
 StreamSlicer.prototype._append = function ( str ) {
 	var chunk = new Buffer(str);
 	this._buffer.push(chunk);
-	//this._currentLength += chunk.length;
+	this._currentLength += chunk.length;
 };
 
 StreamSlicer.prototype._separatorFlush = function (transformFlush) {
 	if (this.replaceWith && !transformFlush) {
 		this._buffer.push(this.replaceWith);
-		//this._currentLength += this.replaceWith.length;
+		this._currentLength += this.replaceWith.length;
 	}
 
-	var data = Buffer.concat(this._buffer/*, this._currentLength*/);
+	var data = Buffer.concat(this._buffer, this._currentLength);
 
 	this._buffer = [];
-	//this._currentLength = 0;
+	this._currentLength = 0;
 
 	this.push(data);
 	this.emit('slice', data);
