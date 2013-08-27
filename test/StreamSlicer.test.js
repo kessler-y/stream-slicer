@@ -3,7 +3,6 @@ var StreamSlicer = require('../index');
 var fs = require('fs');
 var path = require('path');
 
-
 var dir = process.cwd();
 var testdataFilename;
 

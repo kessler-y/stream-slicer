@@ -26,7 +26,7 @@ StreamSlicer.prototype._transform = function(chunk, encoding, callback) {
 	var start = 0;
 	var index = -1;
 
-	while( (index = chunk.indexOf(this._sliceBy, start)) > -1 ) {
+	while ((index = chunk.indexOf(this._sliceBy, start)) > -1 ) {
 		var miniChunk = chunk.substring(start, index);
 
 		this._append( miniChunk );
